@@ -6,6 +6,6 @@ def inline():
     builder = InlineKeyboardBuilder()
 
     builder.row(types.InlineKeyboardButton(text="dari edu", web_app=types.WebAppInfo
-                (url="https://github.com/dariedu")))
+                (url="https://github.com/dariedu/botWebApp")))
 
     return builder.as_markup()
