@@ -1,9 +1,11 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 import logging
+
 from data.config import config_settings
 from utils.commands import set_commands
 from webApp.handlers.start_handler import router
+from webApp.handlers.callback_tasks import router_task
 
 
 async def start_bot(bot: Bot):
@@ -20,9 +22,8 @@ async def start():
     dp = Dispatcher()
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
-
+    dp.include_routers(router_task, router)
     try:
-        dp.include_router(router)
 
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
