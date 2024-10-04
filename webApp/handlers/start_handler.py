@@ -8,17 +8,18 @@ router = Router()
 
 @router.message(Command(commands=["start"]))
 async def start(message: types.Message):
-    await message.reply("Привет! Для регистрации необходимо получить контактный номер телефона и id телеграмм."
-                        "Для этого нажми на кнопку ниже:", reply_markup=inlines())
+    await message.reply("Для регистрации вам необходимо поделиться с приложением своим номером телефона",
+                        reply_markup=inlines())
 
 @router.message(F.contact)
 async def contact_received(message: types.Message):
     tg_id = message.from_user.id
     if message.contact:
         phone_number = message.contact.phone_number
-        await message.answer(f"Спасибо! Ваш номер телефона: {phone_number}, id телеграмм: {tg_id}",
-                             reply_markup=types.ReplyKeyboardRemove())
-        await message.answer("теперь нажмите на кнопку для перехода в приложение", reply_markup=inline())
-    else:
-        await message.answer("Вы не отправили номер телефона.")
+        await message.answer(f"Спасибо!", reply_markup=types.ReplyKeyboardRemove())
+        await message.answer("Теперь нажмите на кнопку для перехода в приложение", reply_markup=inline())
 
+@router.message(F.text == 'не делиться')
+async def text_received(message: types.Message):
+    if message.text == 'не делиться':
+        await message.answer("регистрация не возможна")
