@@ -32,5 +32,26 @@ def send_refuse_task(task_id, tg_id):
         print("Токен не получен")
 
 
-# if __name__ == '__main__':
-#     send_refuse_delivery(),
+def send_refuse_promotion(promotion_id, tg_id):
+    url = f"http://127.0.0.1:8000/api/promotions/{promotion_id}/cancel/"
+    url_token = f"http://127.0.0.1:8000/api/token/"
+    url_notification = f"http://127.0.0.1:8000/api/notifications/"
+
+    response = requests.post(url_token, json={"tg_id": tg_id})
+
+    if response.status_code == 200 and 'access' in response.json():
+        token = response.json()['access']
+        pprint(token)
+        title = 'Отмена использования поощрения'
+        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+                                             json={
+                                                 'promotion_id': promotion_id,
+                                                 'title': title
+                                             }).json()
+        pprint(request_notification)
+        if request_notification:
+            request = requests.post(url, headers={'Authorization': f'Bearer {token}'},
+                                    json={"volunteer_tg_id": tg_id}).json()
+            pprint(request)
+    else:
+        print("Токен не получен")
