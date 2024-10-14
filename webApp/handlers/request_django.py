@@ -55,3 +55,26 @@ def send_refuse_promotion(promotion_id, tg_id):
             pprint(request)
     else:
         print("Токен не получен")
+
+
+def get_task_name(task_id, tg_id):
+    url_token = f"http://127.0.0.1:8000/api/token/"
+    url = f"http://127.0.0.1:8000/api/tasks/my/"
+    response = requests.post(url_token, json={"tg_id": tg_id})
+    # request = requests.get(url).json()
+    # pprint(request)
+
+    if response.status_code == 200 and 'access' in response.json():
+        token = response.json()['access']
+        pprint(token)
+
+        request = requests.get(url, headers={'Authorization': f'Bearer {token}'}).json()
+        pprint(request)
+        if request:
+            for task in request:
+                if task['id'] == task_id:
+                    return task['name']
+                print(task['id'])
+                print(task['name'])
+    else:
+        print("Токен не получен")

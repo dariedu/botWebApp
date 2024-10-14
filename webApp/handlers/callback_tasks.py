@@ -2,7 +2,7 @@ import json
 from pprint import pprint
 from aiogram import Bot, Router, types
 
-from webApp.handlers.request_django import send_refuse_task, send_refuse_delivery, send_refuse_promotion
+from webApp.handlers.request_django import send_refuse_task, send_refuse_delivery, send_refuse_promotion, get_task_name
 
 router_task = Router()
 
@@ -21,10 +21,12 @@ async def handling_task_call(call: types.CallbackQuery, bot: Bot):
         pprint(data)
         curator_id = data['curator_tg_id']
         user_nickname = f"@{call.from_user.username}"
-        tg_id = data['volunteer_tg_id']
+        tg_id = call.from_user.id
+        pprint(tg_id)
         task_id = data['task_id']
+        task_name = get_task_name(task_id, tg_id)
         await call.message.edit_text("Отклонено")
-        await bot.send_message(curator_id, f"Пользователь {user_nickname} отклонил задачу {task_id}")
+        await bot.send_message(curator_id, f"Пользователь {user_nickname} отклонил задачу {task_name}")
         send_refuse_task(task_id, tg_id)
     elif call.data == 'accept_delivery':
         await call.message.edit_text("Подтверждено")
@@ -38,7 +40,7 @@ async def handling_task_call(call: types.CallbackQuery, bot: Bot):
         pprint(data)
         curator_id = data['curator_tg_id']
         user_nickname = f"@{call.from_user.username}"
-        tg_id = data['volunteer_tg_id']
+        tg_id = call.from_user.id
         delivery_id = data['delivery_id']
         await call.message.edit_text("Отклонено")
         await bot.send_message(curator_id, f"Пользователь {user_nickname} отклонил участие в доставке ")
