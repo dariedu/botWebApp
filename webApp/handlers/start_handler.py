@@ -9,13 +9,14 @@ router = Router()
 
 @router.message(Command(commands=["start"]))
 async def start(message: types.Message):
-    tg_id = message.from_user.id
-    tg_nickname = f"@{message.from_user.username}"
-    requests = get_user_request(tg_id)
-    if requests:
-        await message.reply("Добро пожаловать!", reply_markup=inline_app(tg_id, tg_nickname))
-    else:
-        await message.reply("Для регистрации вам необходимо поделиться с приложением своим номером телефона",
+    # tg_id = message.from_user.id
+    # tg_nickname = f"@{message.from_user.username}"
+    # requests = get_user_request(tg_id)
+    # print(requests)
+    # if requests:
+    #     await message.reply("Добро пожаловать!", reply_markup=inline_app(tg_id, tg_nickname))
+    # else:
+    await message.reply("Для регистрации вам необходимо поделиться с приложением своим номером телефона",
                             reply_markup=inlines())
 
 
