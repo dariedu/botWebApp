@@ -80,13 +80,8 @@ def get_task_name(task_id, tg_id):
         print("Токен не получен")
 
 def get_user_request(tg_id):
-    url = f"http://127.0.0.1:8000/api/users/get-user-tg-id/{tg_id}/"
-    url_token = f"http://127.0.0.1:8000/api/token/"
+    url_token = f"http://skillfactory.dariedu.site/api/token/"
 
     response = requests.post(url_token, json={"tg_id": tg_id})
-    if response.status_code == 200 and 'access' in response.json():
-        token = response.json()['access']
-        pprint(token)
-        request = requests.get(url, headers={'Authorization': f'Bearer {token}'}).json()
-        pprint(request)
-        return request
+    if response.status_code == 200:
+        return True
