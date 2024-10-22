@@ -28,7 +28,7 @@ async def text_receive(message: types.Message):
     if message.text == '🔑Вход':
         tg_id = message.from_user.id
         if responses:
-            await message.answer("Добро пожаловать!", reply_markup=up(tg_id=tg_id)())
+            await message.answer("Добро пожаловать!", reply_markup=up(tg_id=tg_id))
         else:
             await message.answer("Вы не зарегистрированы")
 
