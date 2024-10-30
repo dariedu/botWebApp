@@ -74,3 +74,20 @@ def get_user_request(tg_id):
         return True
 
     return False
+
+def post_promo_is_active(promotion_id, tg_id):
+    url = f"http://127.0.0.1:8000/api/participation/"
+
+    response = requests.post(url_token, json={"tg_id": tg_id})
+    print(response.status_code)
+
+    if response.status_code == 200 and 'access' in response.json():
+        token = response.json()['access']
+        is_active = True
+        posts = requests.post(url, headers={'Authorization': f'Bearer {token}'},
+                              json={"user": tg_id, "promotion": promotion_id, "is_active": is_active}).json()
+        if posts == 200:
+            return True
+    else:
+        print(response.json())
+        return response.status_code
