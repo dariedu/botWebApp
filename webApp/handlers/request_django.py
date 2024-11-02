@@ -36,7 +36,7 @@ def send_refuse_promotion(promotion_id, tg_id):
 
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
-        title = 'Отмена использования поощрения'
+        title = 'Отказ от записи поощрения'
         request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
                                              json={
                                                  'promotion_id': promotion_id,
