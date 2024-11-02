@@ -11,7 +11,7 @@ router_task = Router()
 @router_task.callback_query()
 async def handling_task_call(call: types.CallbackQuery, bot: Bot):
     if call.data == 'accept_task':
-        await call.message.edit_text("Подтверждено task")
+        await call.message.edit_text("Подтверждено")
     elif call.data.startswith('refuse_task'):
         data_str = call.data.split(':', 1)[1]
         try:
