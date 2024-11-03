@@ -13,19 +13,50 @@ def send_refuse_delivery(delivery_id, tg_id):
         requests.post(url, headers={'Authorization': f'Bearer {token}'},
                       json={"volunteer_tg_id": tg_id}).json()
     else:
-        print("Токен не получен")
+        return response.status_code
 
 
 def send_refuse_task(task_id, tg_id):
     url = f"https://skillfactory.dariedu.site/api/tasks/{task_id}/refuse//"
+    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
 
     response = requests.post(url_token, json={"tg_id": tg_id})
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         requests.post(url, headers={'Authorization': f'Bearer {token}'},
                       json={"volunteer_tg_id": tg_id}).json()
+        title = 'Отказ от записи на Доброе дело'
+        action_type = 'cancel'
+        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+                                             json={
+                                                 'task_id': task_id,
+                                                 'title': title,
+                                                 'action_type': action_type
+                                             }).json()
+        if request_notification:
+            return response.status_code
     else:
-        print("Токен не получен")
+        return response.status_code
+
+def send_accept_task(task_id, tg_id):
+    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
+
+    response = requests.post(url_token, json={"tg_id": tg_id})
+
+    if response.status_code == 200 and 'access' in response.json():
+        token = response.json()['access']
+        title = 'Подтверждение записи на Доброе дело'
+        action_type = 'confirm'
+        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+                                             json={
+                                                 'task_id': task_id,
+                                                 'title': title,
+                                                 'action_type': action_type
+                                             }).json()
+        if request_notification:
+            return response.status_code
+    else:
+        return response.status_code
 
 
 def send_refuse_promotion(promotion_id, tg_id):
@@ -37,16 +68,18 @@ def send_refuse_promotion(promotion_id, tg_id):
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         title = 'Отказ от записи поощрения'
+        action_type = 'cancel'
         request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
                                              json={
                                                  'promotion_id': promotion_id,
-                                                 'title': title
+                                                 'title': title,
+                                                 'action_type': action_type
                                              }).json()
         if request_notification:
             requests.post(url, headers={'Authorization': f'Bearer {token}'},
                           json={"volunteer_tg_id": tg_id}).json()
     else:
-        print("Токен не получен")
+        return response.status_code
 
 
 def get_task_name(task_id, tg_id):
@@ -64,7 +97,7 @@ def get_task_name(task_id, tg_id):
                 if task['id'] == task_id:
                     return task['name']
     else:
-        print("Токен не получен")
+        return response.status_code
 
 
 def get_user_request(tg_id):
@@ -77,17 +110,27 @@ def get_user_request(tg_id):
 
 def post_promo_is_active(promotion_id, tg_id):
     url = f"http://127.0.0.1:8000/api/participation/"
+    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
 
     response = requests.post(url_token, json={"tg_id": tg_id})
-    print(response.status_code)
-
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         is_active = True
         posts = requests.post(url, headers={'Authorization': f'Bearer {token}'},
                               json={"user": tg_id, "promotion": promotion_id, "is_active": is_active}).json()
-        if posts == 200:
-            return True
+        if posts:
+            return response.status_code
+
+        action_type = 'confirm'
+        title = 'Подтверждение записи поощрения'
+        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+                                             json={
+                                                 'promotion_id': promotion_id,
+                                                 'title': title,
+                                                 'action_type': action_type
+                                             }).json()
+
+        if request_notification:
+            return response.status_code
     else:
-        print(response.json())
         return response.status_code
