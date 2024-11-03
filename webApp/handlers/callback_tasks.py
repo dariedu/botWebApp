@@ -4,7 +4,7 @@ from aiogram import Bot, Router, types
 import re
 
 from webApp.handlers.request_django import send_refuse_task, send_refuse_delivery, send_refuse_promotion, get_task_name, \
-    post_promo_is_active
+    post_promo_is_active, send_accept_task
 
 router_task = Router()
 
@@ -12,6 +12,15 @@ router_task = Router()
 @router_task.callback_query()
 async def handling_task_call(call: types.CallbackQuery, bot: Bot):
     if call.data == 'accept_task':
+        data_str = call.data.split(':', 1)[1]
+        try:
+            data = json.loads(data_str)
+        except json.JSONDecodeError as e:
+            print(f"Ошибка разбора JSON: {e}")
+            return
+        task_id = data['task_id']
+        tg_id = call.from_user.id
+        send_accept_task(task_id, tg_id)
         await call.message.edit_text("Подтверждено")
     elif call.data.startswith('refuse_task'):
         data_str = call.data.split(':', 1)[1]
@@ -48,8 +57,8 @@ async def handling_task_call(call: types.CallbackQuery, bot: Bot):
         pattern = r'Подтвердите участие в Благотворительной доставке (\d{2}\.\d{2}\.\d{4}) в (\d{2}:\d{2})!'
         match = re.search(pattern, call.message.text)
         if match:
-            date_str = match.group(1)  # Дата
-            time_str = match.group(2)  # Время
+            date_str = match.group(1)
+            time_str = match.group(2)
         await bot.send_message(curator_id, f"Волонтёр {user_nickname} "
                                            f"отказался от Благотворительной доставки {date_str} в {time_str}")
         send_refuse_delivery(delivery_id, tg_id)
