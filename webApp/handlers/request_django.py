@@ -109,7 +109,7 @@ def get_user_request(tg_id):
     return False
 
 def post_promo_is_active(promotion_id, tg_id):
-    url = f"http://127.0.0.1:8000/api/participation/"
+    url = f"https://skillfactory.dariedu.site/api/participation/"
     url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
 
     response = requests.post(url_token, json={"tg_id": tg_id})
