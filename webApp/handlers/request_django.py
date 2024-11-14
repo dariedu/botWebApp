@@ -1,11 +1,11 @@
 from pprint import pprint
 import requests
 
+from data.url import *
 
-url_token = f"https://skillfactory.dariedu.site/api/token/"
 
 def send_refuse_delivery(delivery_id, tg_id):
-    url = f"https://skillfactory.dariedu.site/api/deliveries/{delivery_id}/cancel/"
+    url = f"{url_deliveries}/{delivery_id}/cancel/"
 
     response = requests.post(url_token, json={"tg_id": tg_id})
     if response.status_code == 200 and 'access' in response.json():
@@ -17,8 +17,7 @@ def send_refuse_delivery(delivery_id, tg_id):
 
 
 def send_refuse_task(task_id, tg_id):
-    url = f"https://skillfactory.dariedu.site/api/tasks/{task_id}/refuse//"
-    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
+    url = f"{url_tasks}/{task_id}/refuse/"
 
     response = requests.post(url_token, json={"tg_id": tg_id})
     if response.status_code == 200 and 'access' in response.json():
@@ -27,7 +26,7 @@ def send_refuse_task(task_id, tg_id):
                       json={"volunteer_tg_id": tg_id}).json()
         title = 'Отказ от записи на Доброе дело'
         action_type = 'cancel'
-        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+        request_notification = requests.post(url_notifications, headers={'Authorization': f'Bearer {token}'},
                                              json={
                                                  'task_id': task_id,
                                                  'title': title,
@@ -39,15 +38,13 @@ def send_refuse_task(task_id, tg_id):
         return response.status_code
 
 def send_accept_task(task_id, tg_id):
-    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
-
     response = requests.post(url_token, json={"tg_id": tg_id})
 
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         title = 'Подтверждение записи на Доброе дело'
         action_type = 'confirm'
-        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+        request_notification = requests.post(url_notifications, headers={'Authorization': f'Bearer {token}'},
                                              json={
                                                  'task_id': task_id,
                                                  'title': title,
@@ -60,16 +57,14 @@ def send_accept_task(task_id, tg_id):
 
 
 def send_refuse_promotion(promotion_id, tg_id):
-    url = f"https://skillfactory.dariedu.site/api/promotions/{promotion_id}/cancel/"
-    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
-
+    url = f"{url_promotions}/{promotion_id}/cancel/"
     response = requests.post(url_token, json={"tg_id": tg_id})
 
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         title = 'Отказ от записи поощрения'
         action_type = 'cancel'
-        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+        request_notification = requests.post(url_notifications, headers={'Authorization': f'Bearer {token}'},
                                              json={
                                                  'promotion_id': promotion_id,
                                                  'title': title,
@@ -83,7 +78,7 @@ def send_refuse_promotion(promotion_id, tg_id):
 
 
 def get_task_name(task_id, tg_id):
-    url = f"https://skillfactory.dariedu.site/api/tasks/my/"
+    url = f"{url_tasks}/tasks/my/"
     response = requests.post(url_token, json={"tg_id": tg_id})
 
     if response.status_code == 200 and 'access' in response.json():
@@ -109,28 +104,53 @@ def get_user_request(tg_id):
     return False
 
 def post_promo_is_active(promotion_id, tg_id):
-    url = f"https://skillfactory.dariedu.site/api/participation/"
-    url_notification = f"https://skillfactory.dariedu.site/api/notifications/"
-
     response = requests.post(url_token, json={"tg_id": tg_id})
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         is_active = True
-        posts = requests.post(url, headers={'Authorization': f'Bearer {token}'},
+        posts = requests.post(url_participation, headers={'Authorization': f'Bearer {token}'},
                               json={"user": tg_id, "promotion": promotion_id, "is_active": is_active}).json()
         if posts:
             return response.status_code
 
         action_type = 'confirm'
         title = 'Подтверждение записи поощрения'
-        request_notification = requests.post(url_notification, headers={'Authorization': f'Bearer {token}'},
+        request_notification = requests.post(url_notifications, headers={'Authorization': f'Bearer {token}'},
                                              json={
                                                  'promotion_id': promotion_id,
                                                  'title': title,
                                                  'action_type': action_type
                                              }).json()
-
         if request_notification:
             return response.status_code
     else:
         return response.status_code
+
+
+def update_phone_numbers(tg_id, phone_number):
+    url_id = f"{url_users}?tg_id={tg_id}"
+    response = requests.post(url_token, json={"tg_id": tg_id})
+
+    if response.status_code == 200 and 'access' in response.json():
+        token = response.json()['access']
+        user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'}).json()
+
+        if user_response:
+            for user_data in user_response:
+                pk = user_data.get('id')
+                if pk:
+                    update_url = f"{url_users}{pk}/"
+                    update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
+                                                     json={"phone": phone_number})
+
+                    if update_response.status_code == 200:
+                        return True
+                    else:
+                        print("Не удалось обновить номер телефона.:", update_response.status_code, update_response.text)
+                        return False
+        else:
+            print("Не удалось получить данные пользователя.:", user_response.status_code, user_response.text)
+            return False
+    else:
+        print("Не удалось получить токен доступа или неверный ответ.:", response.status_code, response.text)
+        return False
