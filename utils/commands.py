@@ -7,5 +7,8 @@ async def set_commands(bot: Bot):
         BotCommand(
             command="start", description="Старт"
         ),
+        BotCommand(
+            command='update_phone_number', description='Обновить номер телефона'
+        )
     ]
     await bot.set_my_commands(commands, scope=BotCommandScopeDefault())

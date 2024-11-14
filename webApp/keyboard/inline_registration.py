@@ -35,3 +35,9 @@ def up(tg_id):
                 (url=url)))
 
     return builder.as_markup()
+
+
+def update_phone():
+    builder = ReplyKeyboardBuilder()
+    builder.row(types.KeyboardButton(text="Отправить номер телефона", request_contact=True))
+    return builder.as_markup(resize_keyboard=True, input_field_placeholder="Нажмите кнопку ⬇️ ⬇️ ⬇️",)
