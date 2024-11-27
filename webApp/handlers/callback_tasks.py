@@ -11,7 +11,7 @@ router_task = Router()
 
 @router_task.callback_query()
 async def handling_task_call(call: types.CallbackQuery, bot: Bot):
-    if call.data == 'accept_task':
+    if call.data.startswith('accept_task'):
         data_str = call.data.split(':', 1)[1]
         try:
             data = json.loads(data_str)
@@ -20,6 +20,7 @@ async def handling_task_call(call: types.CallbackQuery, bot: Bot):
             return
         task_id = data['task_id']
         tg_id = call.from_user.id
+        print(tg_id)
         send_accept_task(task_id, tg_id)
         await call.message.edit_text("Подтверждено")
     elif call.data.startswith('refuse_task'):

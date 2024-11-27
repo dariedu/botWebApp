@@ -57,10 +57,10 @@ async def contact_received(message: types.Message, state: FSMContext):
                              reply_markup=inline(tg_id, tg_nickname, phone_number))
         await state.clear()
 
-@router.message(F.text == '🚫не делиться')
+@router.message(F.text == '🚫Не делиться')
 async def text_received(message: types.Message):
-    if message.text == '🚫не делиться':
-        await message.answer("регистрация без номера телефона не возможна")
+    if message.text == '🚫Не делиться':
+        await message.answer("Регистрация без номера телефона не возможна")
 
 
 @router.message(F.contact, StateNumberPhone.update_phone)

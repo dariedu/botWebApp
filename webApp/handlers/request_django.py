@@ -18,6 +18,7 @@ def send_refuse_delivery(delivery_id, tg_id):
 
 def send_refuse_task(task_id, tg_id):
     url = f"{url_tasks}/{task_id}/refuse/"
+    print('url', url)
 
     response = requests.post(url_token, json={"tg_id": tg_id})
     if response.status_code == 200 and 'access' in response.json():
@@ -42,6 +43,7 @@ def send_accept_task(task_id, tg_id):
 
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
+        print('token', token)
         title = 'Подтверждение записи на Доброе дело'
         action_type = 'confirm'
         request_notification = requests.post(url_notifications, headers={'Authorization': f'Bearer {token}'},
@@ -51,6 +53,7 @@ def send_accept_task(task_id, tg_id):
                                                  'action_type': action_type
                                              }).json()
         if request_notification:
+            pprint(request_notification)
             return response.status_code
     else:
         return response.status_code
@@ -87,7 +90,7 @@ def get_task_name(task_id, tg_id):
 
         request = requests.get(url, headers={'Authorization': f'Bearer {token}'}).json()
         pprint(request)
-        if request:
+        if request == 200:
             for task in request:
                 if task['id'] == task_id:
                     return task['name']

@@ -6,8 +6,8 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 def inlines():
     builder = ReplyKeyboardBuilder()
     builder.add(
-        types.KeyboardButton(text="📞 Поделится контактом", request_contact=True),
-        types.KeyboardButton(text="🚫не делиться", request_contact=False),
+        types.KeyboardButton(text="📞 Поделиться контактом", request_contact=True),
+        types.KeyboardButton(text="🚫Не делиться", request_contact=False),
     )
 
     builder.adjust(1)
