@@ -1,0 +1,17 @@
+#version: '3.10'
+
+services:
+  botwebapp:
+    build: .
+    command: python run.py
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+    environment:
+      BACKEND_URL: http://dariedu-server:8000  # Связь с бэкендом
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${BACKEND_DB_PORT}/${DB_NAME}
+
+networks:
+  mynetwork:
+    external: true
