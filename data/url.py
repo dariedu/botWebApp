@@ -1,5 +1,7 @@
-base_url = "https://skillfactory.dariedu.site/api"
-# base_url = "http://127.0.0.1:8000/api"
+from data.config import config_settings
+
+base_url = config_settings.base_url
+
 
 url_token = f"{base_url}/token/"
 url_deliveries = f"{base_url}/deliveries/"
