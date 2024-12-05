@@ -9,12 +9,6 @@ class Settings(BaseSettings):
     ADMIN_ID: int
     base_url: str
     APP_URL: str
-    # DB_NAME: str
-    # DB_USER: str
-    # DB_PASSWORD: SecretStr
-    # DB_HOST: str
-    # DB_PORT: int
-    # BACKEND_DB_PORT: int
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
