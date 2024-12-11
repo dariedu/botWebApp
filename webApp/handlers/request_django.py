@@ -81,21 +81,33 @@ def send_refuse_promotion(promotion_id, tg_id):
 
 
 def get_task_name(task_id, tg_id):
-    url = f"{url_tasks}/tasks/my/"
+    url = f"{url_tasks}/my/"
     response = requests.post(url_token, json={"tg_id": tg_id})
 
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
         pprint(token)
 
-        request = requests.get(url, headers={'Authorization': f'Bearer {token}'}).json()
-        pprint(request)
-        if request == 200:
-            for task in request:
-                if task['id'] == task_id:
-                    return task['name']
+        request = requests.get(url, headers={'Authorization': f'Bearer {token}'})
+
+        if request.status_code == 200:
+            try:
+                data = request.json()
+                pprint(data)
+                for task in data:
+                    if task['id'] == task_id:
+                        pprint(task['id'])
+                        name = task['name']
+                        print('NAME', name)
+                        return name
+            except ValueError:
+                print("Ошибка декодирования JSON:", request.text)
+        else:
+            print(f"Ошибка при получении задач: {request.status_code} - {request.text}")
     else:
-        return response.status_code
+        print(f"Ошибка при получении токена: {response.status_code} - {response.text}")
+
+    return None
 
 
 def get_user_request(tg_id):
