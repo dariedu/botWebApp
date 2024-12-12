@@ -1,7 +1,8 @@
 from aiogram import types
-
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from data.config import config_settings
 
+APP_URL = config_settings.APP_URL
 
 def inlines():
     builder = ReplyKeyboardBuilder()
@@ -28,7 +29,7 @@ def cmd_start():
 
 
 def up(tg_id):
-    url = f"https://dariedufront.vercel.app?tg_id={tg_id}"
+    url = f"{APP_URL}?tg_id={tg_id}"
     builder = InlineKeyboardBuilder()
 
     builder.row(types.InlineKeyboardButton(text="🍞 dari edu", web_app=types.WebAppInfo
