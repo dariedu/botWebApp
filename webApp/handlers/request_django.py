@@ -10,8 +10,11 @@ def send_refuse_delivery(delivery_id, tg_id):
     response = requests.post(url_token, json={"tg_id": tg_id})
     if response.status_code == 200 and 'access' in response.json():
         token = response.json()['access']
-        requests.post(url, headers={'Authorization': f'Bearer {token}'},
-                      json={"volunteer_tg_id": tg_id}).json()
+        cancel_response = requests.post(url, headers={'Authorization': f'Bearer {token}'},
+                                        json={"volunteer_tg_id": tg_id})
+        if cancel_response.status_code != 200:
+            return cancel_response.status_code
+
     else:
         return response.status_code
 
@@ -105,7 +108,7 @@ def get_task_name(task_id, tg_id):
         else:
             print(f"Ошибка при получении задач: {request.status_code} - {request.text}")
     else:
-        print(f"Ошибка при получении токена: {response.status_code} - {response.text}")
+        return print(f"Ошибка при получении токена: {response.status_code} - {response.text}")
 
     return None
 
@@ -124,9 +127,10 @@ def post_promo_is_active(promotion_id, tg_id):
         token = response.json()['access']
         is_active = True
         posts = requests.post(url_participation, headers={'Authorization': f'Bearer {token}'},
-                              json={"user": tg_id, "promotion": promotion_id, "is_active": is_active}).json()
-        if posts:
-            return response.status_code
+                              json={"tg_id": tg_id, "promotion_id": promotion_id, "is_active": is_active})
+
+        if posts.status_code != 200:
+            return posts.status_code
 
         action_type = 'confirm'
         title = 'Подтверждение записи поощрения'
@@ -135,9 +139,11 @@ def post_promo_is_active(promotion_id, tg_id):
                                                  'promotion_id': promotion_id,
                                                  'title': title,
                                                  'action_type': action_type
-                                             }).json()
-        if request_notification:
-            return response.status_code
+                                             })
+        if request_notification.status_code == 200:
+            return 200
+        else:
+            return request_notification.status_code
     else:
         return response.status_code
 
@@ -154,7 +160,7 @@ def update_phone_numbers(tg_id, phone_number):
             for user_data in user_response:
                 pk = user_data.get('id')
                 if pk:
-                    update_url = f"{url_users}{pk}/"
+                    update_url = f"{url_users}{pk}/update_phone/"
                     update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
                                                      json={"phone": phone_number})
 
@@ -164,7 +170,7 @@ def update_phone_numbers(tg_id, phone_number):
                         print("Не удалось обновить номер телефона.:", update_response.status_code, update_response.text)
                         return False
         else:
-            print("Не удалось получить данные пользователя.:", user_response.status_code, user_response.text)
+            print("Не удалось получить данные пользователя.:", user_response)
             return False
     else:
         print("Не удалось получить токен доступа или неверный ответ.:", response.status_code, response.text)
