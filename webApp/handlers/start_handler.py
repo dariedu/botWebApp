@@ -10,7 +10,7 @@ from webApp.keyboard.inline_registration import inlines, cmd_start, up, update_p
 router = Router()
 
 @router.message(Command(commands=["start"]))
-async def start(message: types.Message):
+async def start_command(message: types.Message):
     await message.answer("Пройдите регистрацию, либо зайдите в приложение!", reply_markup=cmd_start())
 
 
@@ -26,7 +26,7 @@ async def update_phone_number(message: types.Message, state: FSMContext):
 
 
 @router.message(F.text == '📝Регистрация')
-async def text_received(message: types.Message, state: FSMContext):
+async def text_receives(message: types.Message, state: FSMContext):
     responses = get_user_request(tg_id=message.from_user.id)
     if message.text == '📝Регистрация':
         if responses:
