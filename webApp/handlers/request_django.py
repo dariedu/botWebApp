@@ -160,7 +160,7 @@ def update_phone_numbers(tg_id, phone_number):
             for user_data in user_response:
                 pk = user_data.get('id')
                 if pk:
-                    update_url = f"{url_users}{pk}/update_phone/"
+                    update_url = f"{url_users}/{pk}/update_phone/"
                     update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
                                                      json={"phone": phone_number})
 
