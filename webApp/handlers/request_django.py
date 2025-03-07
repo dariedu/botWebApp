@@ -161,7 +161,7 @@ def update_phone_numbers(tg_id, phone_number):
                 pk = user_data.get('id')
                 if pk:
                     update_url = f"{url_users}{pk}/update_phone/"
-                    update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
+                    update_response = requests.post(update_url, headers={'Authorization': f'Bearer {token}'},
                                                      json={"phone": phone_number})
 
                     if update_response.status_code == 200:
