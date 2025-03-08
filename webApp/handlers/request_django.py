@@ -150,28 +150,41 @@ def post_promo_is_active(promotion_id, tg_id):
 
 def update_phone_numbers(tg_id, phone_number):
     url_id = f"{url_users}?tg_id={tg_id}"
-    response = requests.post(url_token, json={"tg_id": tg_id})
 
-    if response.status_code == 200 and 'access' in response.json():
-        token = response.json()['access']
-        user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'}).json()
+    try:
+        response = requests.post(url_token, json={"tg_id": tg_id})
+        response.raise_for_status()
 
-        if user_response:
-            for user_data in user_response:
-                pk = user_data.get('id')
-                if pk:
-                    update_url = f"{url_users}{pk}/update_phone/"
-                    update_response = requests.post(update_url, headers={'Authorization': f'Bearer {token}'},
-                                                     json={"phone": phone_number})
-
-                    if update_response.status_code == 200:
-                        return True
-                    else:
-                        print("Не удалось обновить номер телефона.:", update_response.status_code, update_response.text)
-                        return False
-        else:
-            print("Не удалось получить данные пользователя.:", user_response)
+        token = response.json().get('access')
+        if not token:
+            print("Не удалось получить токен доступа.")
             return False
-    else:
-        print("Не удалось получить токен доступа или неверный ответ.:", response.status_code, response.text)
+
+        user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'})
+        user_response.raise_for_status()
+
+        users = user_response.json()
+        if not users:
+            print("Не удалось получить данные пользователя.")
+            return False
+
+        for user_data in users:
+            pk = user_data.get('id')
+            if pk:
+                update_url = f"{url_phone}{pk}/"
+                update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
+                                                 json={"phone": phone_number})
+                update_response.raise_for_status()
+
+                print(f"Номер телефона успешно обновлен для пользователя с ID {pk}.")
+                return True
+
+        print("Не удалось найти пользователя с указанным tg_id.")
+        return False
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP ошибка: {http_err}")
+        return False
+    except Exception as err:
+        print(f"Произошла ошибка: {err}")
         return False
