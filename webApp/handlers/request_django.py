@@ -1,7 +1,12 @@
 from pprint import pprint
 import requests
+import logging
 
 from data.url import *
+
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def send_refuse_delivery(delivery_id, tg_id):
@@ -157,7 +162,7 @@ def update_phone_numbers(tg_id, phone_number):
 
         token = response.json().get('access')
         if not token:
-            print("Не удалось получить токен доступа.")
+            logging.error("Не удалось получить токен доступа.")
             return False
 
         user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'})
@@ -165,7 +170,7 @@ def update_phone_numbers(tg_id, phone_number):
 
         users = user_response.json()
         if not users:
-            print("Не удалось получить данные пользователя.")
+            logging.warning("Не удалось получить данные пользователя.")
             return False
 
         for user_data in users:
@@ -175,19 +180,19 @@ def update_phone_numbers(tg_id, phone_number):
                 update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
                                                  json={"phone": phone_number})
 
-                print(update_url)
+                logging.info(f"Отправка запроса на обновление номера телефона: {update_url}")
 
                 update_response.raise_for_status()
 
-                print(f"Номер телефона успешно обновлен для пользователя с ID {pk}.")
+                logging.info(f"Номер телефона успешно обновлен для пользователя с ID {pk}.")
                 return True
 
-        print("Не удалось найти пользователя с указанным tg_id.")
+        logging.warning("Не удалось найти пользователя с указанным tg_id.")
         return False
 
     except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP ошибка: {http_err}")
+        logging.error(f"HTTP ошибка: {http_err}")
         return False
     except Exception as err:
-        print(f"Произошла ошибка: {err}")
+        logging.error(f"Произошла ошибка: {err}")
         return False
