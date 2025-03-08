@@ -174,6 +174,9 @@ def update_phone_numbers(tg_id, phone_number):
                 update_url = f"{url_phone}{pk}/"
                 update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
                                                  json={"phone": phone_number})
+
+                print(update_url)
+
                 update_response.raise_for_status()
 
                 print(f"Номер телефона успешно обновлен для пользователя с ID {pk}.")
