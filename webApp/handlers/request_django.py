@@ -154,7 +154,7 @@ def post_promo_is_active(promotion_id, tg_id):
 
 
 def update_phone_numbers(tg_id, phone_number):
-    url_id = f"{url_users}?tg_id={tg_id}"
+    # url_id = f"{url_users}?tg_id={tg_id}"
 
     try:
         response = requests.post(url_token, json={"tg_id": tg_id})
@@ -165,34 +165,50 @@ def update_phone_numbers(tg_id, phone_number):
             logging.error("Не удалось получить токен доступа.")
             return False
 
-        user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'})
-        user_response.raise_for_status()
+        update_url = f"{url_phone}{tg_id}/"
 
-        users = user_response.json()
-        if not users:
-            logging.warning("Не удалось получить данные пользователя.")
-            return False
+        update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
+                                         json={"phone": phone_number})
 
-        for user_data in users:
-            pk = user_data.get('id')
-            if pk:
-                update_url = f"{url_phone}{pk}/"
-                update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
-                                                 json={"phone": phone_number})
+        logging.info(f"Отправка запроса на обновление номера телефона: {update_url}")
 
-                logging.info(f"Отправка запроса на обновление номера телефона: {update_url}")
+        update_response.raise_for_status()
 
-                update_response.raise_for_status()
+        logging.info(f"Номер телефона успешно обновлен для пользователя с tg_id {tg_id}.")
+        return True
 
-                logging.info(f"Номер телефона успешно обновлен для пользователя с ID {pk}.")
-                return True
-
-        logging.warning("Не удалось найти пользователя с указанным tg_id.")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Произошла ошибка при обновлении номера телефона: {e}")
         return False
 
-    except requests.exceptions.HTTPError as http_err:
-        logging.error(f"HTTP ошибка: {http_err}")
-        return False
-    except Exception as err:
-        logging.error(f"Произошла ошибка: {err}")
-        return False
+        # user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'})
+        # user_response.raise_for_status()
+        #
+        # users = user_response.json()
+        # if not users:
+        #     logging.warning("Не удалось получить данные пользователя.")
+        #     return False
+
+    #     for user_data in users:
+    #         pk = user_data.get('id')
+    #         if pk:
+    #             update_url = f"{url_phone}{pk}/"
+    #             update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
+    #                                              json={"phone": phone_number})
+    #
+    #             logging.info(f"Отправка запроса на обновление номера телефона: {update_url}")
+    #
+    #             update_response.raise_for_status()
+    #
+    #             logging.info(f"Номер телефона успешно обновлен для пользователя с ID {pk}.")
+    #             return True
+    #
+    #     logging.warning("Не удалось найти пользователя с указанным tg_id.")
+    #     return False
+    #
+    # except requests.exceptions.HTTPError as http_err:
+    #     logging.error(f"HTTP ошибка: {http_err}")
+    #     return False
+    # except Exception as err:
+    #     logging.error(f"Произошла ошибка: {err}")
+    #     return False
