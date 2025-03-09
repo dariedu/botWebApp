@@ -1,7 +1,12 @@
 from pprint import pprint
 import requests
+import logging
 
 from data.url import *
+
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def send_refuse_delivery(delivery_id, tg_id):
@@ -149,29 +154,28 @@ def post_promo_is_active(promotion_id, tg_id):
 
 
 def update_phone_numbers(tg_id, phone_number):
-    url_id = f"{url_users}?tg_id={tg_id}"
-    response = requests.post(url_token, json={"tg_id": tg_id})
 
-    if response.status_code == 200 and 'access' in response.json():
-        token = response.json()['access']
-        user_response = requests.get(url_id, headers={'Authorization': f'Bearer {token}'}).json()
+    try:
+        response = requests.post(url_token, json={"tg_id": tg_id})
+        response.raise_for_status()
 
-        if user_response:
-            for user_data in user_response:
-                pk = user_data.get('id')
-                if pk:
-                    update_url = f"{url_users}{pk}/update_phone/"
-                    update_response = requests.post(update_url, headers={'Authorization': f'Bearer {token}'},
-                                                     json={"phone": phone_number})
-
-                    if update_response.status_code == 200:
-                        return True
-                    else:
-                        print("Не удалось обновить номер телефона.:", update_response.status_code, update_response.text)
-                        return False
-        else:
-            print("Не удалось получить данные пользователя.:", user_response)
+        token = response.json().get('access')
+        if not token:
+            logging.error("Не удалось получить токен доступа.")
             return False
-    else:
-        print("Не удалось получить токен доступа или неверный ответ.:", response.status_code, response.text)
+
+        update_url = f"{url_phone}{tg_id}/"
+
+        update_response = requests.patch(update_url, headers={'Authorization': f'Bearer {token}'},
+                                         json={"phone": phone_number})
+
+        logging.info(f"Отправка запроса на обновление номера телефона: {update_url}")
+
+        update_response.raise_for_status()
+
+        logging.info(f"Номер телефона успешно обновлен для пользователя с tg_id {tg_id}.")
+        return True
+
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Произошла ошибка при обновлении номера телефона: {e}")
         return False
