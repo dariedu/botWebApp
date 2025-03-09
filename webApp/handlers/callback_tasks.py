@@ -6,6 +6,7 @@ import re
 from webApp.handlers.request_django import send_refuse_task, send_refuse_delivery, send_refuse_promotion, get_task_name, \
     post_promo_is_active, send_accept_task
 
+
 router_task = Router()
 
 
